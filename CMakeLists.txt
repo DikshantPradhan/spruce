@@ -64,6 +64,39 @@ set( ccf_hdr
   src/solutionset.h
 )
 
+set( parse_src
+  src/parse.cpp
+  src/utils.cpp
+  src/matrix.cpp
+  src/realmatrix.cpp
+  src/tensor.cpp
+  src/realtensor.cpp
+  src/perfectphylomatrix.cpp
+  src/perfectphylotree.cpp
+  src/perfectphylograph.cpp
+  src/rootedcladisticancestrygraph.cpp
+  src/statetree.cpp
+  src/solution.cpp
+  src/solutiongraph.cpp
+  src/solutionset.cpp
+)
+
+set( parse_hdr
+  src/utils.h
+  src/matrix.h
+  src/realmatrix.h
+  src/tensor.h
+  src/realtensor.h
+  src/perfectphylomatrix.h
+  src/perfectphylotree.h
+  src/perfectphylograph.h
+  src/rootedcladisticancestrygraph.h
+  src/statetree.h
+  src/solution.h
+  src/solutiongraph.h
+  src/solutionset.h
+)
+
 set( visualize_src
   src/visualize.cpp
   src/utils.cpp
@@ -407,3 +440,7 @@ target_link_libraries( rank ${CommonLibs} )
 
 add_executable( randomtree EXCLUDE_FROM_ALL ${randomtree_src} ${randomtree_hdr} )
 target_link_libraries( randomtree ${CommonLibs})
+
+add_executable( parse ${parse_src} ${parse_hdr})
+target_link_libraries( parse ${CommonLibs} )
+
