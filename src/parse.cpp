@@ -59,7 +59,7 @@ std::vector<std::string> parseLabel(std::string label){
   return vector;
 }
 
-double returnStates(gm::Solution sol, int vectorIdx){
+double returnStates_0(gm::Solution sol, int vectorIdx){
   //
   int numVertices = sol.S()[vectorIdx].numVertices();
   double states [3][numVertices];
@@ -79,12 +79,15 @@ double returnStates(gm::Solution sol, int vectorIdx){
   return 0;//states; // change this to return array
 }
 
-// use this for observed and/or inferred
-int returnVAF(gm::RealTensor F, gm::Solution sol, int vectorIdx, std::string outputFile){
-
-  // GET STATES
+double** returnStates(gm::Solution sol, int vectorIdx){
+  //
   int numVertices = sol.S()[vectorIdx].numVertices();
-  double states [3][numVertices];
+  double** states = 0;
+  states = new double*[3];
+
+  states[0] = new double[numVertices];
+  states[1] = new double[numVertices];
+  states[2] = new double[numVertices];
 
   for (int i = 0; i < numVertices; i++){
     std::string label = sol.S()[vectorIdx].label(i);
@@ -95,9 +98,16 @@ int returnVAF(gm::RealTensor F, gm::Solution sol, int vectorIdx, std::string out
     states[1][i] = atof(labels[1].c_str());
     states[2][i] = atof(labels[2].c_str());
 
-    // std::cout << states[0][i] << " " << states[1][i] << " " << states[2][i] << " | ";
+    std::cout << states[0][i] << " " << states[1][i] << " " << states[2][i] << " | ";
   }
 
+  return states;//states; // change this to return array
+}
+
+// use this for observed and/or inferred
+int returnVAF(gm::RealTensor F, gm::Solution sol, std::string outputFile){
+
+  int numVertices = sol.S()[0].numVertices();
   // GET VAF
 
   int k = F.k(); //
@@ -122,8 +132,16 @@ int returnVAF(gm::RealTensor F, gm::Solution sol, int vectorIdx, std::string out
 
       for (int h = 0; h < k; h++){
         double freq = F(h, i, j);
-        total_r = total_r + ((states[0][h] + states[1][h])*freq);
-        total_v = total_v + (states[2][h]*freq);
+        //double** states = returnStates(sol, n);
+        std::string label = sol.S()[j].label(h);
+        std::vector<std::string> labels = parseLabel(label);
+
+        double x = atof(labels[0].c_str());
+        double y = atof(labels[1].c_str());
+        double z = atof(labels[2].c_str());
+
+        total_r = total_r + ((x + y)*freq);
+        total_v = total_v + (z*freq);
       }
 
       calculatedVAF[i][j] = total_v/total_r;
@@ -200,7 +218,7 @@ int main(int argc, char** argv)
   std::string parsedFile = writeOutputFile(argv[1], "_parsed.csv");
   std::string readFile = writeOutputFile(argv[1], "_reads.csv");
 
-  returnVAF(sols.solution(2).observedF(), sols.solution(2), 1, parsedFile);
+  returnVAF(sols.solution(2).observedF(), sols.solution(2), parsedFile);
   writeParamFile(getReadNum(argv[1]), readFile);
 
   std::cout << '\n';
