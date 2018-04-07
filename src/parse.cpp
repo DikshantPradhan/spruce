@@ -59,26 +59,6 @@ std::vector<std::string> parseLabel(std::string label){
   return vector;
 }
 
-double returnStates_0(gm::Solution sol, int vectorIdx){
-  //
-  int numVertices = sol.S()[vectorIdx].numVertices();
-  double states [3][numVertices];
-
-  for (int i = 0; i < numVertices; i++){
-    std::string label = sol.S()[vectorIdx].label(i);
-    std::vector<std::string> labels = parseLabel(label);
-    // std::string a = labels[0];
-    // double c = atof(a.c_str());
-    states[0][i] = atof(labels[0].c_str());
-    states[1][i] = atof(labels[1].c_str());
-    states[2][i] = atof(labels[2].c_str());
-
-    std::cout << states[0][i] << " " << states[1][i] << " " << states[2][i] << " | ";
-  }
-
-  return 0;//states; // change this to return array
-}
-
 double** returnStates(gm::Solution sol, int vectorIdx){
   //
   int numVertices = sol.S()[vectorIdx].numVertices();
@@ -114,7 +94,7 @@ int returnVAF(gm::RealTensor F, gm::Solution sol, std::string outputFile){
   int m = F.m(); //
   int n = F.n(); //
 
-  std::cout << "count comparison " << numVertices << " " << k << " " << m << " " << n << '\n';
+  // std::cout << "count comparison " << numVertices << " " << k << " " << m << " " << n << '\n';
   if (numVertices != k){std::cout << "vaf size mismatch";}
 
   // std::cout << k;
@@ -152,7 +132,10 @@ int returnVAF(gm::RealTensor F, gm::Solution sol, std::string outputFile){
   // std::cout << "calculated: " << calculatedVAF << '\n';
 
   std::filebuf fb;
+  // outputFile = "data/" + outputFile;
+
   fb.open (outputFile,std::ios::out);
+  //const char *path="/home/user/file.txt";
   std::ostream os(&fb);
 
   // sols.solution(1).S()[1].writeEdgeList(os);
@@ -213,15 +196,24 @@ int main(int argc, char** argv)
 
   // returnStates(sols.solution(1), 1);
 
-  std::cout << '\n';
+  // std::cout << '\n';
 
-  std::string parsedFile = writeOutputFile(argv[1], "_parsed.csv");
-  std::string readFile = writeOutputFile(argv[1], "_reads.csv");
+  int solCount = sols.solutionCount();
+  std::cout << "num of sols: " << solCount  << '\n';
 
-  returnVAF(sols.solution(2).observedF(), sols.solution(2), parsedFile);
-  writeParamFile(getReadNum(argv[1]), readFile);
+  for (int i = 0; i < solCount; i++){
+    // std::cout << "solnum: " << i << '\n';
+    int sol_idx = i;
+    std::string file_add = "_sol_" + std::to_string(sol_idx) + "_parsed.csv";
+    // outputFile = outputFile + add;
+    std::string parsedFile = "data/" +  writeOutputFile(argv[1], file_add);
+    std::string readFile = "data/" +  writeOutputFile(argv[1], "_reads.csv");
 
-  std::cout << '\n';
+    returnVAF(sols.solution(sol_idx).inferredF(), sols.solution(sol_idx), parsedFile);
+    writeParamFile(getReadNum(argv[1]), readFile);
+  }
+
+  // std::cout << '\n';
 
   // returnVAF(sols.solution(2).inferredF(), sols.solution(2), 1);
 
