@@ -1,0 +1,96 @@
+# input_filename <- "~/Spruce/data/sims_r0_m2_n5_c50.data"
+# output_filename <- "~/Spruce/data/sims_r0_m2_n5_c50_parsed.csv"
+# reads_filename <- "~/Spruce/data/sims_r0_m2_n5_c50_reads.csv"
+# print(calculate_solution_likelihood(input_filename, output_filename, reads_filename))
+# nsol <- 54044 #205267
+# likelihood_100 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m2_n5_c100.data", "~/GitHub/spruce/build/data/sims_r0_m2_n5_c100", 0:(nsol-1))
+# max_likelihood_sols <- which(likelihoods[,2] == max(likelihoods[,2]))
+
+# nsol <- 9170 #205267
+# likelihood_500 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m2_n5_c500.data", "~/GitHub/spruce/build/data/sims_r0_m2_n5_c500", 0:(nsol-1)) # 7591
+# max_likelihood_500 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m2_n5_c500.data", "~/GitHub/spruce/build/data/sims_r0_m2_n5_c500", which(sims_r0_m2_n5_c500_recall == 1)-1) # 7591
+# nsol <- 6229 #205267
+# likelihood_1000 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m2_n5_c1000.data", "~/GitHub/spruce/build/data/sims_r0_m2_n5_c1000", 0:(nsol-1))
+# max_likelihood_1000 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m2_n5_c1000.data", "~/GitHub/spruce/build/data/sims_r0_m2_n5_c1000", which(sims_r0_m2_n5_c1000_recall == 1)-1)
+# nsol <- 791 #205267
+# likelihood_10000 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m2_n5_c10000.data", "~/GitHub/spruce/build/data/sims_r0_m2_n5_c10000", 0:(nsol-1))
+# max_likelihood_10000 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m2_n5_c10000.data", "~/GitHub/spruce/build/data/sims_r0_m2_n5_c10000", which(sims_r0_m2_n5_c10000_recall == 1)-1)
+
+# vars_500 <- iterate_soln_vars("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m2_n5_c500.data", "~/GitHub/spruce/build/data/sims_r0_m2_n5_c500", 0:(nsol-1))
+# vars_500 <- as.data.frame(vars_500)
+# vars_500$recall <- sims_r0_m2_n5_c500_recall$X1
+# 
+# col_names <- c('index', 'prob0_0', 'prob0_1', 'prob0_2', 'prob0_3', 'prob0_4', 'prob1_0', 'prob1_1', 'prob1_2', 'prob1_3', 'prob1_4',
+#                'diff0_0', 'diff0_1', 'diff0_2', 'diff0_3', 'diff0_4', 'diff1_0', 'diff1_1', 'diff1_2', 'diff1_3', 'diff1_4')
+# 
+# colnames(vars_500) <- col_names
+# 
+# model <- lm(formula = 'recall ~ prob0_0 + prob0_1 + prob0_2 + prob0_3 + prob0_4 + prob1_0 + prob1_1 + prob1_2 + prob1_3 + prob1_4 + 
+#             diff0_0 + diff0_1 + diff0_2 + diff0_3 + diff0_4 + diff1_0 + diff1_1 + diff1_2 + diff1_3 + diff1_4', data = vars_500)
+# 
+# nsol <- 6229
+# vars_1000 <- iterate_soln_vars("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m2_n5_c1000.data", "~/GitHub/spruce/build/data/sims_r0_m2_n5_c1000", 0:(nsol-1))
+# vars_1000 <- as.data.frame(vars_1000)
+# colnames(vars_1000) <- col_names
+
+# plot(likelihood_500[,2]/(likelihood_500[,3])^2, sims_r0_m2_n5_c500_recall$X1)
+# interest <- which((likelihood_500[,2] > 0.5) & (likelihood_500[,3] < 0.25))
+# plot(log(likelihood_500[interest,2])/log(likelihood_500[interest,3]), sims_r0_m2_n5_c500_recall$X1[interest])
+# plot(log(likelihood_100[,2]), sims_r0_m2_n5_c100_recall$X1)
+
+# plot(log(likelihood_10000[,2]), likelihood_10000[,3])
+# points(log(max_likelihood_10000[,2]), max_likelihood_10000[,3], col = 'green')
+m5_n5_nsols <- c(2832, 1572, 292, 92, 12)
+nsol <- m5_n5_nsols[1] #205267
+filenames <- get_filenames(5,5,50)
+m5_n5_likelihood_50 <- iterate_over_solutions(filenames$input, filenames$base, 0:(nsol-1))
+m5_n5_max_likelihood_50 <- iterate_over_solutions(filenames$input, filenames$base, which(sims_r0_m5_n5_c50_recall == 1)-1)
+# plot(log(m5_n5_likelihood_50[,2]), m5_n5_likelihood_50[,3])
+# points(log(m5_n5_max_likelihood_50[,2]), m5_n5_max_likelihood_50[,3], col = 'green')
+plot(log(m5_n5_likelihood_50[,2]), sims_r0_m5_n5_c50_recall$X1)
+
+nsol <- m5_n5_nsols[2] #205267
+m5_n5_likelihood_100 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m5_n5_c100.data", "~/GitHub/spruce/build/data/sims_r0_m5_n5_c100", 0:(nsol-1))
+# m5_n5_max_likelihood_100 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m5_n5_c100.data", "~/GitHub/spruce/build/data/sims_r0_m5_n5_c100", which(sims_r0_m5_n5_c100_recall == 1)-1)
+# plot(log(m5_n5_likelihood_100[,2]), m5_n5_likelihood_100[,3])
+# points(log(m5_n5_max_likelihood_100[,2]), m5_n5_max_likelihood_100[,3], col = 'green')
+plot(log(m5_n5_likelihood_100[,2]), sims_r0_m5_n5_c100_recall$X1)
+max <- which(sims_r0_m5_n5_c100_recall == 1)
+points(log(m5_n5_likelihood_100[max,2]), sims_r0_m5_n5_c100_recall$X1[max], col = 'green')
+log_likelihoods <- log(m5_n5_likelihood_100[,2])
+print(paste(length(which(log_likelihoods >= log(m5_n5_likelihood_100[max,2]))), '/', length(log_likelihoods)), sep = ' ')
+
+nsol <- m5_n5_nsols[3] #205267
+m5_n5_likelihood_500 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m5_n5_c500.data", "~/GitHub/spruce/build/data/sims_r0_m5_n5_c500", 0:(nsol-1))
+# m5_n5_max_likelihood_500 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m5_n5_c500.data", "~/GitHub/spruce/build/data/sims_r0_m5_n5_c500", which(sims_r0_m5_n5_c500_recall == 1)-1)
+# plot(log(m5_n5_likelihood_500[,2]), m5_n5_likelihood_500[,3])
+# points(log(m5_n5_max_likelihood_500[,2]), m5_n5_max_likelihood_500[,3], col = 'green')
+plot(log(m5_n5_likelihood_500[,2]), sims_r0_m5_n5_c500_recall$X1)
+max <- which(sims_r0_m5_n5_c500_recall == 1)
+points(log(m5_n5_likelihood_500[max,2]), sims_r0_m5_n5_c500_recall$X1[max], col = 'green')
+log_likelihoods <- log(m5_n5_likelihood_500[,2])
+print(paste(length(which(log_likelihoods >= log(m5_n5_likelihood_500[max,2]))), '/', length(log_likelihoods)), sep = ' ')
+
+nsol <- m5_n5_nsols[4] #205267
+m5_n5_likelihood_1000 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m5_n5_c1000.data", "~/GitHub/spruce/build/data/sims_r0_m5_n5_c1000", 0:(nsol-1))
+# m5_n5_max_likelihood_1000 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m5_n5_c1000.data", "~/GitHub/spruce/build/data/sims_r0_m5_n5_c1000", which(sims_r0_m5_n5_c1000_recall == 1)-1)
+# plot(log(m5_n5_likelihood_1000[,2]), m5_n5_likelihood_1000[,3])
+# points(log(m5_n5_max_likelihood_1000[,2]), m5_n5_max_likelihood_1000[,3], col = 'green')
+plot(log(m5_n5_likelihood_1000[,2]), sims_r0_m5_n5_c1000_recall$X1)
+max <- which(sims_r0_m5_n5_c1000_recall == 1)
+points(log(m5_n5_likelihood_1000[max,2]), sims_r0_m5_n5_c1000_recall$X1[max], col = 'green')
+log_likelihoods <- log(m5_n5_likelihood_1000[,2])
+print(paste(length(which(log_likelihoods >= log(m5_n5_likelihood_1000[max,2]))), '/', length(log_likelihoods)), sep = ' ')
+
+nsol <- m5_n5_nsols[5] #205267
+m5_n5_likelihood_10000 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m5_n5_c10000.data", "~/GitHub/spruce/build/data/sims_r0_m5_n5_c10000", 0:(nsol-1))
+# m5_n5_max_likelihood_1000 <- iterate_over_solutions("~/GitHub/spruce/data/sims/n_5_noisy/sims_r0_m5_n5_c1000.data", "~/GitHub/spruce/build/data/sims_r0_m5_n5_c1000", which(sims_r0_m5_n5_c1000_recall == 1)-1)
+# plot(log(m5_n5_likelihood_1000[,2]), m5_n5_likelihood_1000[,3])
+# points(log(m5_n5_max_likelihood_1000[,2]), m5_n5_max_likelihood_1000[,3], col = 'green')
+plot(log(m5_n5_likelihood_10000[,2]), sims_r0_m5_n5_c10000_recall$X1)
+max <- which(sims_r0_m5_n5_c10000_recall == 1)
+points(log(m5_n5_likelihood_10000[max,2]), sims_r0_m5_n5_c10000_recall$X1[max], col = 'green')
+log_likelihoods <- log(m5_n5_likelihood_10000[,2])
+print(paste(length(which(log_likelihoods >= log(m5_n5_likelihood_10000[max,2]))), '/', length(log_likelihoods)), sep = ' ')
+# 2053267, 54044, 9170, 6277, 791
+

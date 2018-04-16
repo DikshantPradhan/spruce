@@ -85,7 +85,9 @@ double** returnStates(gm::Solution sol, int vectorIdx){
 }
 
 // use this for observed and/or inferred
-int returnVAF(gm::RealTensor F, gm::Solution sol, std::string outputFile){
+int returnVAF(gm::Solution sol, std::string outputFile){
+
+  gm::RealTensor F = sol.inferredF();
 
   int numVertices = sol.S()[0].numVertices();
   // GET VAF
@@ -149,7 +151,7 @@ int returnVAF(gm::RealTensor F, gm::Solution sol, std::string outputFile){
   os << "\n";
   // OUTPUT NUMBERS
   for (int i = 0; i < m; i++){
-    for (int j = 0; j < n; j++){
+    for (int j = n-1; j > -1; j--){
 
       os << calculatedVAF[i][j] << ",";
     }
@@ -163,6 +165,118 @@ int returnVAF(gm::RealTensor F, gm::Solution sol, std::string outputFile){
 
 
   return 0;
+}
+
+int writeSolutionEdgeList(gm::Solution sol, std::string outputFile){
+
+
+  std::filebuf fb;
+  fb.open (outputFile,std::ios::out);
+  std::ostream os(&fb);
+
+  int vecSize = sol.S().size();
+  for (int i = 0; i < vecSize; i++){
+    os << "SNV: " << i << "\n";
+    sol.S()[i].writeEdgeList(os);
+    os << "\n";
+  }
+
+  fb.close();
+
+  return 0;
+  // sols.solution(1).S()[1].writeEdgeList(os);
+}
+
+int comparePhyloMatrix(gm::PerfectPhyloMatrix mtx){
+
+  // std::cout << mtx << '\n';
+
+  int n = mtx.n();
+  int k = mtx.k();
+
+  int** A = 0;
+  A = new int*[n];
+
+  int** trueA = 0;
+  trueA = new int*[n];
+
+  for (int i = 0; i < n; i++){
+    A[i] = new int[k];
+    trueA[i] = new int[k];
+    for (int j = 0; j < k; j++){
+      A[i][j] = 0;
+      trueA[i][j] = 0;
+    }
+  }
+
+  // set up true matrix
+  trueA[0][1] = 1;
+  trueA[0][4] = 1;
+  trueA[0][5] = 1;
+  trueA[0][7] = 1;
+  trueA[1][2] = 1;
+  trueA[2][1] = 1;
+  trueA[2][3] = 1;
+  trueA[2][8] = 1;
+  trueA[3][4] = 1;
+  trueA[3][5] = 1;
+  trueA[4][5] = 1;
+  trueA[1][6] = 2;
+  trueA[2][4] = 2;
+  trueA[2][5] = 2;
+  trueA[2][7] = 2;
+  trueA[3][8] = 2;
+
+  for (int l = 0; l < n; l++){
+    for (int i = 0; i < n; i ++){
+      for (int j = 0; j < k; j++){
+        int val = mtx(i,j, l);
+        if (val == 1){
+          A[i][j] = 1;
+        }
+        if (val > 1){
+          A[i][j] = 2;
+        }
+        // std::cout << mtx(i,j, l) << ' ';
+      }
+      // std::cout << '\n';
+    }
+    // std::cout << '\n';
+  }
+
+  // COMPARISON...NEED TO FIX THIS
+  int total_rows = 0;
+  for (int jt = 0; jt < k; jt++){
+    for (int j = 0; j < k; j++){
+      bool flag = 1;
+      for (int i = 0; i < n; i++){
+        if (A[i][j] != trueA[i][jt]){flag = 0;}
+      }
+      if (flag){total_rows++;}
+    }
+    // std::cout << '\n';
+  }
+  return total_rows;
+}
+
+int compareStateTree(gm::Solution sol){
+
+  int correct = 0;
+
+  int trueStateTree[5][5] = {{-1, 0, -2, -2, -2}, {-1, 0, 1, -2, -2}, {-1, 0, -2, 1, -2}, {-1, 0, -2, -2, 0}, {-1, 0, -2, -2, -2}};
+
+  int nState = sol.S()[0].numVertices();
+  int nSNV = sol.S().size();
+
+  for (int i = 0; i < nSNV; i++){
+    for (int j = 0; j < nState; j++){
+      if (sol.S()[i].parent(j) == trueStateTree[i][j]){
+        correct++;
+      }
+    }
+  }
+
+  return correct;
 }
 
 int main(int argc, char** argv)
@@ -185,21 +299,25 @@ int main(int argc, char** argv)
   inFile >> sols;
   inFile.close();
 
-  // std::filebuf fb;
-  // fb.open ("test.txt",std::ios::out);
-  // std::ostream os(&fb);
-  //
-  // sols.solution(1).S()[1].writeEdgeList(os);
-  //
-  // os << "Test sentence\n";
-  // fb.close();
-
-  // returnStates(sols.solution(1), 1);
-
-  // std::cout << '\n';
-
   int solCount = sols.solutionCount();
   std::cout << "num of sols: " << solCount  << '\n';
+
+  // std::string edgeCompar = "trees/test_comparison.csv";
+  // std::filebuf tf;
+  // tf.open (edgeCompar,std::ios::out);
+  // std::ostream os(&tf);
+  //
+  // std::string stateCompar = "trees/test_state_comparison.csv";
+  // std::filebuf sf;
+  // sf.open (stateCompar,std::ios::out);
+  // std::ostream ot(&sf);
+
+  std::string distCompar = "trees/" + writeOutputFile(argv[1], "_dist_comparison.csv");
+  std::filebuf uf;
+  uf.open (distCompar,std::ios::out);
+  std::ostream ou(&uf);
+
+  sols.assignDistancesByOccurenceCounts();
 
   for (int i = 0; i < solCount; i++){
     // std::cout << "solnum: " << i << '\n';
@@ -209,10 +327,28 @@ int main(int argc, char** argv)
     std::string parsedFile = "data/" +  writeOutputFile(argv[1], file_add);
     std::string readFile = "data/" +  writeOutputFile(argv[1], "_reads.csv");
 
-    returnVAF(sols.solution(sol_idx).inferredF(), sols.solution(sol_idx), parsedFile);
+    returnVAF(sols.solution(sol_idx), parsedFile);
     writeParamFile(getReadNum(argv[1]), readFile);
-  }
+    gm::PerfectPhyloMatrix mtx = sols.solution(sol_idx).A();
 
+    // os << sol_idx << "," << comparePhyloMatrix(mtx) << "\n";
+    // ot << sol_idx << "," << compareStateTree(sols.solution(sol_idx)) << "\n";
+    ou << sol_idx << "," << sols.solution(sol_idx).distance() << "\n";
+
+  }
+  // tf.close();
+  // sf.close();
+  uf.close();
+  // int sol_idx = 179308;
+  // std::cout << "Sol: " << sol_idx << '\n';
+  // writeSolutionEdgeList(sols.solution(sol_idx), "trees/test_edge_list.txt");
+  // gm::PerfectPhyloMatrix mtx = sols.solution(sol_idx).A();
+  //
+  // std::cout << comparePhyloMatrix(mtx) << '\n';
+
+  std::cout << '\n';
+  // int n =
+  // std::cout << sols.solution(sol_idx).U() << '\n';
   // std::cout << '\n';
 
   // returnVAF(sols.solution(2).inferredF(), sols.solution(2), 1);
